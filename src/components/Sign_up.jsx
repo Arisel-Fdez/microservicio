@@ -8,38 +8,35 @@ import { useNavigate } from "react-router-dom";
 
 function Sign_up(){
     const navigator = useNavigate()
-    const [data,setData] = useState({
-        username: "",
+    const data = useState({
+        name: "",
         email: "",
         password: ""
     })
 
-    const url = 'https://localhost:3001/'
+    const url = 'http://localhost:3000/api/user/create'
 
-    function Enviar(e){
-        e.preventDefault();
+
+
+    const { handleSubmit, register, formState: { errors } } = useForm();
+
+    const onSubmit = values =>{
+        console.log(values);
+        const data = values
+        Swal.fire(
+            'Bienvenido!',
+            'Cuenta Creada con Exito',
+            'success'
+        )
         axios.post(url,{
-            username: data.username,
+            name: data.name,
             email: data.email,
             password: data.password
         })
         .then(res=>{
             console.log(res.data)
         })
-    }
-
-
-    const { handleSubmit, register, formState: { errors } } = useForm();
-
-    const onSubmit = values =>{
-        setData(values)
-        console.log(values);
-        Swal.fire(
-            'Bienvenido!',
-            'Cuenta Creada con Exito',
-            'success'
-        )
-        navigator('/Index')
+        navigator('/')
 
     }
 
@@ -61,13 +58,13 @@ function Sign_up(){
                     <form className="was-validated" noValidate onSubmit={handleSubmit(onSubmit)}>
                     <div className="mb-4">
                             <label  className="form-label">Escribe Tu Nombre</label>
-                            <input type="text" className="form-control"  placeholder="username" required {...register("username",{
+                            <input type="text" className="form-control"  placeholder="name" required {...register("name",{
                                 required: {
                                     value: true,
                                     message: "El campo requerido",
                                 }
                             })}></input>
-                            {errors.username && <span className="text-danger">{errors.username.message}</span>}
+                            {errors.name && <span className="text-danger">{errors.name.message}</span>}
                         </div>
                         <div className="mb-4">
                             <label  className="form-label">Escribe Tu Correo</label>
@@ -98,7 +95,7 @@ function Sign_up(){
                             {errors.password && <span className="text-danger">{errors.password.message}</span>}
                         </div>
                         <div className="d-grid">
-                            <button type="submit" onSubmit={(e)=>Enviar(e)} className="btn btn-primary">Registrar</button>
+                            <button type="submit" className="btn btn-primary">Registrar</button>
                         </div>
 
                         <div className="my-3">

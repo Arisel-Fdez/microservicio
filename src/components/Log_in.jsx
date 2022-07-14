@@ -8,15 +8,23 @@ import { useNavigate } from "react-router-dom";
 
 function Login(){
     const navigator = useNavigate()
-    const [data, setData]= useState({
+    const data = useState({
         email: '',
         password: ''
     })
 
-    const url= 'https://'
+    const url= 'http://localhost:3000/api/user/login'
+  
+    const { handleSubmit, register, formState: { errors } } = useForm();
 
-    function Enviar(e){
-        e.preventDefault()
+    const onSubmit = values =>{
+        console.log(values);
+        const data = values
+        Swal.fire(
+            'Bienvenido!',
+            '',
+            'success'
+        )
         axios.post(url,{
             email: data.email,
             password: data.password
@@ -24,17 +32,7 @@ function Login(){
         .then(res => {
             console.log(res.data)
         })
-    }    
-    const { handleSubmit, register, formState: { errors } } = useForm();
-
-    const onSubmit = values =>{
-        setData(values)
-        console.log(values);
-        Swal.fire(
-            'Bienvenido!',
-            '',
-            'success'
-        )
+        console.log(data.email,data.password)
         navigator('/Index')
     }
 
@@ -90,7 +88,7 @@ function Login(){
                         <span><a href="/Recover_pass">Forgot password?</a></span>
                         </div>
                         <div className="d-grid">
-                            <button type="submit" onSubmit={(e)=>Enviar(e)} className="btn btn-primary">Iniciar Sesion</button>
+                            <button type="submit" className="btn btn-primary">Iniciar Sesion</button>
                         </div>
 
                         <div className="my-3">
