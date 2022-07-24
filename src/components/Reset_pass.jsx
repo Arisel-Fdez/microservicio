@@ -6,33 +6,30 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Reset_pass() {
-    const [data, setData]= useState({
+
+    const data = useState({
         password: ''
     })
 
-    const url = 'https://'
-
-    function Enviar(e){
-        e.preventDefault();
-        axios.put(url,{
-            password: data.password
-        })
-        .then(response => {
-            console.log(response.data);
-        })
-    }
+    const url = 'http://localhost:3000/api/user/update_password'
     const navigator = useNavigate()
     const { handleSubmit, register, formState: { errors } } = useForm();
 
     const onSubmit = values =>{
         if (values.password1 === values.password) {
-            setData(values)
+            const data = values
             console.log(values);
             Swal.fire(
                 'Password Actualizado!',
                 '',
                 'success'
             )
+            axios.put(url,{
+                password: data.password
+            })
+            .then(response => {
+                console.log(response.data);
+            })
             navigator('/')
         }
         else {
@@ -88,7 +85,7 @@ function Reset_pass() {
                             {errors.password && <span className="text-danger">{errors.password.message}</span>}
                     </div>
                     <div className="d-grid">
-                        <button type="submit" onSubmit={(e)=>Enviar(e)} className="btn btn-primary">Restablecer</button>
+                        <button type="submit" className="btn btn-primary">Restablecer</button>
                     </div>
                 </form>
             </div>

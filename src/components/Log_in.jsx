@@ -34,6 +34,7 @@ function Login(){
         })
         console.log(data.email,data.password)
         navigator('/Index')
+    
     }
 
     

@@ -4,6 +4,8 @@ import Sign_up from './Sign_up';
 import Recover_pass from './Recover_pass';
 import Reset_pass from './Reset_pass';
 import Index from "./Index";
+import Shop from "./Shop";
+import Confirmation_Acount from "./Confirmation_Acount";
 
 function App() {
     return (
@@ -14,7 +16,8 @@ function App() {
                 <Route path="/Recover_pass" element={<Recover_pass />} />
                 <Route path="/Reset_pass" element={<Reset_pass />} />
                 <Route path="/Index" element={<Index />} />
-
+                <Route path="/Shop" element={<Shop />} />
+                <Route path="/Confirmation_Acount" element={<Confirmation_Acount/>} />
             </Routes>
         </div>
     );
