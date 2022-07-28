@@ -7,7 +7,7 @@ import axios from "axios";
 function Confirmation_Acount() {
     const navigator = useNavigate()
     const [data, setData] = useState({
-        valor: 'false',
+        valor: 'false'
     })
 
 
@@ -17,21 +17,36 @@ function Confirmation_Acount() {
         setData(newdata)
     }
 
+    const querystring = window.location.search
+    const params = new URLSearchParams(querystring)
+
 
 
     const validate = () => {
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+      
+        var raw = JSON.stringify({
+          "email": params.get('email'),
+        });
 
         const url = 'http://localhost:3000/api/user/config?'
 
         if (data.valor === 'true') {
             console.log('Validation Success: ' + data.valor);
+ 
 
+          
+            console.log(raw);
             axios.post(url, {
                 valor: data.valor,
+                email: params.get('email'),
+                
+                
             })
-            .then(res => {
-                console.log(res.data)
-            })
+                .then(res => {
+                    console.log(res.data)
+                })
             Swal.fire(
                 'Muy Bien!',
                 'Gracias por confirma',
@@ -40,15 +55,17 @@ function Confirmation_Acount() {
             navigator('/')
 
         }
-        if(data.valor === 'false') {
+        if (data.valor === 'false') {
             console.log('Validation error: ' + data.valor);
 
             axios.post(url, {
                 valor: data.valor,
+                email: params.get('email'),
             })
-            .then(res => {
-                console.log(res.data)
-            })
+                .then(res => {
+                    console.log(res.data)
+                    
+                })
 
             Swal.fire(
                 'Tiempo agotado!',
@@ -59,7 +76,7 @@ function Confirmation_Acount() {
 
 
 
-            
+
 
         }
     }
@@ -80,15 +97,15 @@ function Confirmation_Acount() {
                         <h3>Fdez</h3>
                     </div>
                     <h2 className="fw-bold text-center py-5">Bienvenido</h2>
-                    <h4 className="fw-bold text-center">Click en el Boton!</h4>
+                    <h4 className="fw-bold text-center">Click en el Boton!</h4><br/>
 
                     <form className="was-validated" onSubmit={validate}>
-                        <div class="form-check"><br></br>
+                        <div class="form-check">
                             <input class="form-check-input" onChange={(e) => handle(e)} value={true} type="radio" name="flexRadioDefault" id="valor" />
                             <label class="form-check-label" for="flexRadioDefault1">
                                 Activar y Aceptas los terminos.
                             </label>
-                        </div>
+                        </div><br />
                         <div className="d-grid">
                             <button type="submit" className="btn btn-primary">Confirmar</button>
                         </div>

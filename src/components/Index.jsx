@@ -14,12 +14,12 @@ function Index() {
     const toggle = () => setModal(!modal);
     const navigator = useNavigate()
     const [data, setData] = useState({
-        nombre: '',
-        precio: '',
-        cantidad: '',
-        stock: '',
-        inf: '',
         name: '',
+        nameProduc: '',
+        description: '',
+        price: '',
+        amount: '',
+        selectedFile: null
     })
 
 
@@ -32,31 +32,74 @@ function Index() {
 
     }
 
+    // function readfile($event) {
+    //     //this.setState({ selectedFile: event.target.files[0] });
+    //     //console.log(event.target);
+    //     console.log($event);
+    // }
+
+    // // On file select (from the pop up)
+    // function onFileChange (event) {
+
+    //     // Update the state
+    //     console.log(event);
+
+    // };
 
 
-    const url = 'http://localhost:3000/api/img/form'
+    const handleFileSelected = (e) => {
+        const files = Array.from(e.target.files)
+        console.log("files:", files);
+        
+        if( files && files.length > 0)
+        {
+            const newdata = { ...data }
+            newdata["selectedFile"] = files[0];
+            setData(newdata)
+        }
+
+      }
+
+
+    const url = 'http://localhost:3000/api/product/create'
 
     function Enviar() {
-        Swal.fire(
-            'Que Bien!',
-            'Se Agrego nuevo producto',
-            'success'
-        )
-        axios.post(url, {
-            nombre: data.nombre,
-            precio: data.precio,
-            cantidad: data.cantidad,
-            stock: data.stock,
-            inf: data.inf,
-            name: data.name,
 
-        })
+
+        const formData = new FormData();
+        formData.append("name", data.selectedFile);
+        formData.append("nameProduc", data.nameProduc);
+        formData.append("description", data.description);
+        formData.append("price", data.price);
+        formData.append("amount", data.amount);
+
+        axios.post(url,formData )
             .then(res => {
-                console.log(res.data)
+
+                console.log(res)
+                if(res.status === 200)
+                {
+                    Swal.fire({
+                        title: 'Que bien',
+                        text: "Se agrego nuevo producto!",
+                        icon: 'success',
+                        confirmButtonColor: '#0e46ff',
+                        confirmButtonText: 'Okay'
+                      }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.replace('/Index');
+                        }
+                      })
+                }else{
+                    Swal.fire(
+                        'ATENCIÓN',
+                        'Ha ocurrido un error al guardar la imagen, reintente',
+                        'warning'
+                    );
+                }
             })
 
         toggle(false);
-        //navigator('/')
 
     }
 
@@ -71,7 +114,7 @@ function Index() {
                                 <path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294l4-13zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0zm6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z" />
                             </svg>
                             Fdez <small className="text-black">Dev</small>
-                            
+
                         </a>
                         <div class="dropdown">
 
@@ -111,12 +154,12 @@ function Index() {
                                 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="24" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
                                     <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z" />
                                 </svg>
-                                Arisel Fdez
+                                Arisel Fernandez
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
                                 <li><button class="dropdown-item" type="button">Profile</button></li>
                                 <li><button class="dropdown-item" type="button">Setting</button></li>
-                                <li><button class="dropdown-item" type="button">Logout</button></li>
+                                <li><a href="/" class="dropdown-item" type="button">Logout</a></li>
                             </ul>
                         </div>
                     </div>
@@ -143,39 +186,33 @@ function Index() {
                     <Modal isOpen={modal} >
                         <ModalHeader className="text-primary">Subir Producto</ModalHeader>
                         <ModalBody>
-                            <form className="was-validated" noValidate enctype="multipart/form-data" >
+                            <form className="was-validated" noValidate  >
                                 <FormGroup>
                                     <div>
-                                        <Label>Nombre</Label>
-                                        <input type="text" className="form-control" onChange={(e) => handle(e)} id="nombre" value={data.nombre} placeholder="name" required></input>
+                                        <Label>Img</Label>
+                                        <input type="file" name='file' class="form-control" onChange={handleFileSelected} id="name"  aria-label="Upload" required></input>
                                     </div>
                                     <div>
-                                        <Label for="price">Precio</Label>
-                                        <input type="text" className="form-control" onChange={(e) => handle(e)} id="precio" value={data.precio} placeholder="price" required ></input>
+                                        <Label for="price">Titulo</Label>
+                                        <input type="text" className="form-control" onChange={(e) => handle(e)} id="nameProduc" value={data.nameProduc} placeholder="titulo" required ></input>
                                     </div>
                                     <div>
-                                        <Label for="Stock">Cantidad disponible</Label>
-                                        <input type="text" className="form-control" onChange={(e) => handle(e)} id="cantidad" value={data.cantidad} placeholder="Cantidad" required></input>
+                                        <Label for="price">Description</Label>
+                                        <input type="text" className="form-control" onChange={(e) => handle(e)} id="description" value={data.description} placeholder="descriptions" required ></input>
                                     </div>
                                     <div>
-                                        <Label for="Stock">Stock Disponible</Label>
-                                        <input type="text" className="form-control" onChange={(e) => handle(e)} id="stock" value={data.stock} placeholder="Stock" required></input>
+                                        <Label for="Stock">Precio</Label>
+                                        <input type="text" className="form-control" onChange={(e) => handle(e)} id="price" value={data.price} placeholder="precio" required></input>
                                     </div>
                                     <div>
-                                        <Label for="descrip">Descripcion</Label>
-                                        <input type="text" className="form-control" onChange={(e) => handle(e)} id="inf" value={data.inf} placeholder="Descripcion" required></input>
+                                        <Label for="Stock">Stock</Label>
+                                        <input type="text" className="form-control" onChange={(e) => handle(e)} id="amount" value={data.amount} placeholder="Stock" required></input>
                                     </div>
-                                    <Label for="exampleFile">
-                                        Select Img
-                                    </Label>
-                                    <Input
-                                        name="file"
-                                        type="file" onChange={(e) => handle(e)} id="name" value={data.name} required />
                                 </FormGroup>
                             </form>
                         </ModalBody>
                         <ModalFooter>
-                            <Button type="submit" onClick={(e) => Enviar(e)} color="primary" >Guardar</Button>
+                            <Button type="submit" onClick={Enviar} color="primary" >Guardar</Button>
                             <Button color="secondary" onClick={toggle}>Cancel</Button>
                         </ModalFooter>
                     </Modal>

@@ -7,6 +7,9 @@ import axios from "axios";
 
 function Reset_pass() {
 
+    const querystring = window.location.search
+    const params = new URLSearchParams(querystring)
+
     const data = useState({
         password: ''
     })
@@ -16,19 +19,25 @@ function Reset_pass() {
     const { handleSubmit, register, formState: { errors } } = useForm();
 
     const onSubmit = values =>{
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+      
+        var raw = JSON.stringify({
+          "email": params.get('email'),
+        });
         if (values.password1 === values.password) {
             const data = values
-            console.log(values);
-            Swal.fire(
-                'Password Actualizado!',
-                '',
-                'success'
-            )
             axios.put(url,{
+                email: params.get('email'),
                 password: data.password
             })
             .then(response => {
                 console.log(response.data);
+                Swal.fire(
+                    ''+response.data.err+'!',
+                    '',
+                    'success'
+                )
             })
             navigator('/')
         }

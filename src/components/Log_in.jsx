@@ -10,7 +10,8 @@ function Login(){
     const navigator = useNavigate()
     const data = useState({
         email: '',
-        password: ''
+        password: '',
+        validat: ''
     })
 
     const url= 'http://localhost:3000/api/user/login'
@@ -18,22 +19,48 @@ function Login(){
     const { handleSubmit, register, formState: { errors } } = useForm();
 
     const onSubmit = values =>{
-        console.log(values);
-        const data = values
-        Swal.fire(
-            'Bienvenido!',
-            '',
-            'success'
-        )
+        const data = values;
+
+        console.log(data);
         axios.post(url,{
             email: data.email,
-            password: data.password
+            password: data.password,
+            validat: data.validat
         })
-        .then(res => {
-            console.log(res.data)
+        .then(res =>{
+            if (res.request.status === 200){
+                if (data.email === "arisel583@gmail.com"){
+                    Swal.fire(
+                        'Bienvenido!',
+                        ''+res.data.data.name+'',
+                        'success'
+                    )
+                    navigator('/Index')
+                }
+                else{
+                    Swal.fire(
+                        'Bienvenido!',
+                        ''+ res.data.data.name+ '',
+                        'success'
+                    )
+                    navigator('/Shop')
+                }
+                
+            }
         })
-        console.log(data.email,data.password)
-        navigator('/Index')
+        .catch(err => {
+            Swal.fire(
+                'Error!',
+                ''+ err.response.data.error +'',
+                'error'
+            )
+
+
+
+        })
+
+    
+        
     
     }
 
