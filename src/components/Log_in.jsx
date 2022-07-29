@@ -100,7 +100,7 @@ function Login(){
                         </div>
                         <div className="mb-4">
                             <label className="form-label">Escribe Tu Constraseña</label>
-                            <input type="password" className="form-control" placeholder="Password" required {...register("password",{
+                            <input className="form-control" placeholder="Password" required {...register("password",{
                                 required: {
                                     value: true,
                                     message: "El campo requerido",

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Swal from 'sweetalert2'
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Label, Input, FormGroup } from 'reactstrap';
 import Upimg from './Upimg';
 
@@ -10,10 +9,13 @@ import Upimg from './Upimg';
 
 
 function Index() {
-    const [modal, setModal] = useState(false);
-    const toggle = () => setModal(!modal);
-    const navigator = useNavigate()
-    const [data, setData] = useState({
+    const [modaladd, setModaladd] = useState(false);
+    const add = () => setModaladd(!modaladd);
+    const [modalupdate, setModalupdate] = useState(false);
+    const update = () => setModalupdate(!modalupdate);
+    const [modaldelet, setModaldelet] = useState(false);
+    const delet = () => setModaldelet(!modaldelet);
+    const [data1, setData1] = useState({
         name: '',
         nameProduc: '',
         description: '',
@@ -21,76 +23,152 @@ function Index() {
         amount: '',
         selectedFile: null
     })
+    const [data, setData] = useState({
+        id: '',
+    })
+
+    const [data2, setData2] = useState({
+        id: '',
+        nameProduc: '',
+        description: '',
+        price: '',
+        amount: '',
+    })
 
 
     function handle(e) {
         e.preventDefault();
-        const newdata = { ...data }
+        const newdata = { ...data1 }
         newdata[e.target.id] = e.target.value
+        setData1(newdata)
+        console.log(newdata)
+
+    }
+
+    function handledelet(d) {
+        d.preventDefault();
+        const newdata = { ...data }
+        newdata[d.target.id] = d.target.value
         setData(newdata)
         console.log(newdata)
 
     }
 
-    // function readfile($event) {
-    //     //this.setState({ selectedFile: event.target.files[0] });
-    //     //console.log(event.target);
-    //     console.log($event);
-    // }
 
-    // // On file select (from the pop up)
-    // function onFileChange (event) {
+    function handleupdate(u) {
+        u.preventDefault();
+        const newdata = { ...data2 }
+        newdata[u.target.id] = u.target.value
+        setData2(newdata)
+        console.log(newdata)
 
-    //     // Update the state
-    //     console.log(event);
-
-    // };
+    }
 
 
     const handleFileSelected = (e) => {
         const files = Array.from(e.target.files)
         console.log("files:", files);
-        
-        if( files && files.length > 0)
-        {
-            const newdata = { ...data }
+
+        if (files && files.length > 0) {
+            const newdata = { ...data1 }
             newdata["selectedFile"] = files[0];
-            setData(newdata)
+            setData1(newdata)
         }
 
-      }
+    }
 
 
-    const url = 'http://localhost:3000/api/product/create'
+
+
+    const urldelet = 'http://localhost:3000/api/product/delete'
+
+    const EnviarDelet = (d) => {
+
+        axios.delete(urldelet, {
+            data: data,
+        })
+            .then(res => {
+                setData(res.data)
+            })
+            .catch(err => {
+                console.log(err)
+            })
+        Swal.fire({
+            title: 'Datos Eliminados!',
+            text: "",
+            icon: 'success',
+            confirmButtonColor: '#0e46ff',
+            confirmButtonText: 'Okay'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.replace('/Index');
+            }
+        })
+        delet(false);
+
+    }
+
+
+    const url = 'http://localhost:3000/api/product/update'
+
+    function Enviarupdate() {
+        const formData = new FormData();
+        formData.append("id", data2.id);
+        formData.append("nameProduc", data2.nameProduc);
+        formData.append("description", data2.description);
+        formData.append("price", data2.price);
+        formData.append("amount", data2.amount);
+
+        axios.post(url, formData)
+            .then(res => {
+                if (res.status === 200) {
+                    Swal.fire({
+                        title: 'Que bien',
+                        text: "Se actualizo el producto!",
+                        icon: 'success',
+                        confirmButtonColor: '#0e46ff',
+                        confirmButtonText: 'Okay'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.replace('/Index');
+                        }
+                    })
+                } else {
+                    Swal.fire(
+                        'ATENCIÓN',
+                        'Ha ocurrido un error al actualizar, reintente',
+                        'warning'
+                    );
+                }
+            })
+
+        update(false);
+
+    }
 
     function Enviar() {
-
-
         const formData = new FormData();
-        formData.append("name", data.selectedFile);
-        formData.append("nameProduc", data.nameProduc);
-        formData.append("description", data.description);
-        formData.append("price", data.price);
-        formData.append("amount", data.amount);
+        formData.append("name", data1.selectedFile);
+        formData.append("nameProduc", data1.nameProduc);
+        formData.append("description", data1.description);
+        formData.append("price", data1.price);
+        formData.append("amount", data1.amount);
 
-        axios.post(url,formData )
+        axios.post(url, formData)
             .then(res => {
-
-                console.log(res)
-                if(res.status === 200)
-                {
+                if (res.status === 200) {
                     Swal.fire({
                         title: 'Que bien',
                         text: "Se agrego nuevo producto!",
                         icon: 'success',
                         confirmButtonColor: '#0e46ff',
                         confirmButtonText: 'Okay'
-                      }).then((result) => {
+                    }).then((result) => {
                         if (result.isConfirmed) {
                             window.location.replace('/Index');
                         }
-                      })
-                }else{
+                    })
+                } else {
                     Swal.fire(
                         'ATENCIÓN',
                         'Ha ocurrido un error al guardar la imagen, reintente',
@@ -99,7 +177,7 @@ function Index() {
                 }
             })
 
-        toggle(false);
+        add(false);
 
     }
 
@@ -136,18 +214,31 @@ function Index() {
                             </svg>
                             Tables
                         </a>
-                        <button class="btn btn-outline-primary" href="#">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="24" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
-                                <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z" />
-                                <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z" />
-                            </svg>
-                            Utilities
-                        </button>
-                        <button onClick={toggle} class="btn btn-outline-primary" href="#">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="24" fill="currentColor" class="bi bi-bag" viewBox="0 0 16 16">
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="24" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
+                                    <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z" />
+                                    <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z" />
+                                </svg>
+                                Util Product
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                                <li><button onClick={delet} class="dropdown-item" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                                    <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z" />
+                                </svg>Delete</button></li>
+                                <li><button onClick={update} class="dropdown-item" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-upload" viewBox="0 0 16 16">
+                                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+                                    <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z" />
+                                </svg>Update</button></li>
+
+                            </ul>
+                        </div>
+                        <button onClick={add} class="btn btn-outline-primary" href="#">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="24" fill="currentColor" class="bi bi-bag-plus" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 7.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0v-1.5H6a.5.5 0 0 1 0-1h1.5V8a.5.5 0 0 1 .5-.5z" />
                                 <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z" />
                             </svg>
-                            Producto
+                            Product add
                         </button>
                         <div class="dropdown">
                             <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false">
@@ -183,37 +274,93 @@ function Index() {
             <Upimg></Upimg>
             <div>
                 <form>
-                    <Modal isOpen={modal} >
+                    <Modal isOpen={modaladd} >
                         <ModalHeader className="text-primary">Subir Producto</ModalHeader>
                         <ModalBody>
                             <form className="was-validated" noValidate  >
                                 <FormGroup>
                                     <div>
                                         <Label>Img</Label>
-                                        <input type="file" name='file' class="form-control" onChange={handleFileSelected} id="name"  aria-label="Upload" required></input>
+                                        <input type="file" name='file' class="form-control" onChange={handleFileSelected} id="name" aria-label="Upload" required></input>
                                     </div>
                                     <div>
                                         <Label for="price">Titulo</Label>
-                                        <input type="text" className="form-control" onChange={(e) => handle(e)} id="nameProduc" value={data.nameProduc} placeholder="titulo" required ></input>
+                                        <input type="text" className="form-control" onChange={(e) => handle(e)} id="nameProduc" value={data1.nameProduc} placeholder="titulo" required ></input>
                                     </div>
                                     <div>
                                         <Label for="price">Description</Label>
-                                        <input type="text" className="form-control" onChange={(e) => handle(e)} id="description" value={data.description} placeholder="descriptions" required ></input>
+                                        <input type="text" className="form-control" onChange={(e) => handle(e)} id="description" value={data1.description} placeholder="descriptions" required ></input>
                                     </div>
                                     <div>
                                         <Label for="Stock">Precio</Label>
-                                        <input type="text" className="form-control" onChange={(e) => handle(e)} id="price" value={data.price} placeholder="precio" required></input>
+                                        <input type="text" className="form-control" onChange={(e) => handle(e)} id="price" value={data1.price} placeholder="precio" required></input>
                                     </div>
                                     <div>
                                         <Label for="Stock">Stock</Label>
-                                        <input type="text" className="form-control" onChange={(e) => handle(e)} id="amount" value={data.amount} placeholder="Stock" required></input>
+                                        <input type="text" className="form-control" onChange={(e) => handle(e)} id="amount" value={data1.amount} placeholder="Stock" required></input>
                                     </div>
                                 </FormGroup>
                             </form>
                         </ModalBody>
                         <ModalFooter>
                             <Button type="submit" onClick={Enviar} color="primary" >Guardar</Button>
-                            <Button color="secondary" onClick={toggle}>Cancel</Button>
+                            <Button color="secondary" onClick={add}>Cancel</Button>
+                        </ModalFooter>
+                    </Modal>
+                </form>
+
+                <form>
+                    <Modal isOpen={modalupdate} >
+                        <ModalHeader className="text-primary">Actualidar Producto</ModalHeader>
+                        <ModalBody>
+                            <form className="was-validated" noValidate  >
+                                <FormGroup>
+                                    <div>
+                                        <Label for="price">No. product</Label>
+                                        <input type="text" className="form-control" onChange={(u) => handleupdate(u)} id="id" value={data2.id} placeholder="Id" required ></input>
+                                    </div>
+                                    <div>
+                                        <Label for="price">Titulo</Label>
+                                        <input type="text" className="form-control" onChange={(u) => handleupdate(u)} id="nameProduc" value={data2.nameProduc} placeholder="titulo" required ></input>
+                                    </div>
+                                    <div>
+                                        <Label for="price">Description</Label>
+                                        <input type="text" className="form-control" onChange={(u) => handleupdate(u)} id="description" value={data2.description} placeholder="descriptions" required ></input>
+                                    </div>
+                                    <div>
+                                        <Label for="Stock">Precio</Label>
+                                        <input type="text" className="form-control" onChange={(u) => handleupdate(u)} id="price" value={data2.price} placeholder="precio" required></input>
+                                    </div>
+                                    <div>
+                                        <Label for="Stock">Stock</Label>
+                                        <input type="text" className="form-control" onChange={(u) => handleupdate(u)} id="amount" value={data2.amount} placeholder="Stock" required></input>
+                                    </div>
+                                </FormGroup>
+                            </form>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button type="submit" onClick={Enviarupdate} color="primary" >Guardar</Button>
+                            <Button color="secondary" onClick={update}>Cancel</Button>
+                        </ModalFooter>
+                    </Modal>
+                </form>
+
+                <form>
+                    <Modal isOpen={modaldelet} >
+                        <ModalHeader className="text-primary">Delete Product</ModalHeader>
+                        <ModalBody>
+                            <form className="was-validated" noValidate  >
+                                <FormGroup>
+                                    <div>
+                                        <Label for="price">Id</Label>
+                                        <input type="text" className="form-control" onChange={(d) => handledelet(d)} id="id" value={data.id} placeholder="Id" required ></input>
+                                    </div>
+                                </FormGroup>
+                            </form>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button type="submit" onClick={EnviarDelet} color="primary" >Guardar</Button>
+                            <Button color="secondary" onClick={delet}>Cancel</Button>
                         </ModalFooter>
                     </Modal>
                 </form>
